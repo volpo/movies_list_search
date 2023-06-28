@@ -1,0 +1,83 @@
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..a979ee7[m
+[1m--- /dev/null[m
+[1m+++ b/.gitignore[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32m/venv[m
+\ No newline at end of file[m
+[1mdiff --git a/README.md b/README.md[m
+[1mdeleted file mode 100644[m
+[1mindex 2b0886b..0000000[m
+[1m--- a/README.md[m
+[1m+++ /dev/null[m
+[36m@@ -1 +0,0 @@[m
+[31m-# movies_list_search[m
+\ No newline at end of file[m
+[1mdiff --git a/__pycache__/main.cpython-311.pyc b/__pycache__/main.cpython-311.pyc[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9a5fb88[m
+Binary files /dev/null and b/__pycache__/main.cpython-311.pyc differ
+[1mdiff --git a/main.py b/main.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3f64064[m
+[1m--- /dev/null[m
+[1m+++ b/main.py[m
+[36m@@ -0,0 +1,52 @@[m
+[32m+[m[32mfrom fastapi import FastAPI[m
+[32m+[m[32mapp = FastAPI()[m
+[32m+[m
+[32m+[m[32m@app.get("/")[m
+[32m+[m[32mdef index():[m
+[32m+[m[32m    q1 = ["Para retornar la cantidad de peliculas que se estrenaron ese mes historicamente /cantidad_filmaciones_mes/{mes}     "][m
+[32m+[m[32m    q2 = ["Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente /cantidad_filmaciones_dia{dia}    "][m
+[32m+[m[32m    q3 = ["Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo/{titulo}    "][m
+[32m+[m[32m    q4 = ["Ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones /votos_titulo/{titulo}    "][m
+[32m+[m[32m    q5 = ["Ingresa nombre de actor para devolver el éxito a través del retorno y cantidad de películas que participó y el promedio de retorno /get_actor/{nombre_actor   "][m[41m  [m
+[32m+[m[32m    q6 = ["Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,     "][m
+[32m+[m[32m    q7 = q6 + ["Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director(nombre_director)   "][m
+[32m+[m[32m    q8 = ['Ingresas un nombre de pelicula y te recomienda las similares en una lista. /recomendacion/{titulo}'][m
+[32m+[m
+[32m+[m[32m    indice = q1+q2+q3+q4+q5+q6+q7+q8[m
+[32m+[m[32m    return indice[m
+[32m+[m
+[32m+[m[32m@app.get('/cantidad_filmaciones_mes/{mes}')[m
+[32m+[m[32mdef cantidad_filmaciones_mes(mes:str):[m
+[32m+[m[32m    '''Se ingresa el mes y la funcion retorna la cantidad de peliculas que se estrenaron ese mes historicamente'''[m
+[32m+[m[32m    return {'mes':mes, 'cantidad':'respuesta'}[m
+[32m+[m
+[32m+[m[32m@app.get('/cantidad_filmaciones_dia{dia}')[m
+[32m+[m[32mdef cantidad_filmaciones_dia(dia:str):[m
+[32m+[m[32m    '''Se ingresa el dia y la funcion retorna la cantidad de peliculas que se estrebaron ese dia historicamente'''[m
+[32m+[m[32m    return {'dia':dia, 'cantidad':'respuesta'}[m
+[32m+[m
+[32m+[m[32m@app.get('/score_titulo/{titulo}')[m
+[32m+[m[32mdef score_titulo(titulo:str):[m
+[32m+[m[32m    '''Se ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score'''[m
+[32m+[m[32m    return {'titulo':titulo, 'anio':'respuesta', 'popularidad':'respuesta'}[m
+[32m+[m
+[32m+[m[32m@app.get('/votos_titulo/{titulo}')[m
+[32m+[m[32mdef votos_titulo(titulo:str):[m
+[32m+[m[32m    '''Se ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones.[m[41m [m
+[32m+[m[32m    La misma variable deberá de contar con al menos 2000 valoraciones,[m[41m [m
+[32m+[m[32m    caso contrario, debemos contar con un mensaje avisando que no cumple esta condición y que por ende, no se devuelve ningun valor.'''[m
+[32m+[m[32m    return {'titulo':titulo, 'anio':'respuesta', 'voto_total':'respuesta', 'voto_promedio':'respuesta'}[m
+[32m+[m
+[32m+[m[32m@app.get('/get_actor/{nombre_actor}')[m
+[32m+[m[32mdef get_actor(nombre_actor:str):[m
+[32m+[m[32m    '''Se ingresa el nombre de un actor que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno.[m[41m [m
+[32m+[m[32m    Además, la cantidad de películas que en las que ha participado y el promedio de retorno'''[m
+[32m+[m[32m    return {'actor':nombre_actor, 'cantidad_filmaciones':'respuesta', 'retorno_total':'respuesta', 'retorno_promedio':'respuesta'}[m
+[32m+[m
+[32m+[m[32m@app.get('/get_director/{nombre_director}')[m
+[32m+[m[32mdef get_director(nombre_director:str):[m
+[32m+[m[32m    ''' Se ingresa el nombre de un director que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno.[m[41m [m
+[32m+[m[32m    Además, deberá devolver el nombre de cada película con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma.'''[m
+[32m+[m[32m    return {'director':nombre_director, 'retorno_total_director':'respuesta',[m[41m [m
+[32m+[m[32m    'peliculas':respuesta, 'anio':'respuesta', 'retorno_pelicula':'respuesta',[m[41m [m
+[32m+[m[32m    'budget_pelicula':respuesta, 'revenue_pelicula':'respuesta'}[m
+\ No newline at end of file[m
+[1mdiff --git a/requirements.txt b/requirements.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..bb92a2a[m
+Binary files /dev/null and b/requirements.txt differ
