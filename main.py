@@ -2,7 +2,16 @@ from fastapi import FastAPI
 app = FastAPI()
 
 import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+from nltk.stem import WordNetLemmatizer
 
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 movies_final = pd.read_csv('movies_final.csv',low_memory=False)
 casting_final = pd.read_csv('casting_final.csv', sep=',',  low_memory=False)
@@ -204,6 +213,8 @@ def get_director(nombre_director:str):
 @app.get('/recomendacion/{titulo}')
 def recomendacion(titulo:str):
     '''Ingresas un nombre de pelicula y te recomienda las peliculas similares tomando como variable su popularidad y su género. devuelve una lista'''
+    stop_words = set(stopwords.words('english'))
+    lemmatizer = WordNetLemmatizer()
     # Convertir a minúsculas la variable
     titulo = titulo.lower()
 
@@ -214,21 +225,37 @@ def recomendacion(titulo:str):
     puntuaciones = movies_final[movies_final['title'] == titulo][['title', 'popularity']]
     if puntuaciones.empty:
         return []  # La película no se encuentra en el dataset
-    
+
     # Eliminar duplicados de títulos y mantener solo la película de mayor popularidad
     puntuaciones = puntuaciones.drop_duplicates(subset='title', keep='first')
-    
+
     # Filtrar las películas que coinciden en al menos dos géneros
-    peliculas_coincidentes = movies_final[movies_final.apply(lambda row: row['title'] != titulo and sum(row[genre] == 1 for genre in ['Animation', 'Comedy', 'Family', 'Adventure', 'Fantasy', 'Romance', 'Drama', 'Action', 'Crime', 'Thriller', 'Horror', 'History', 'Science Fiction', 'Mystery', 'War', 'Foreign', 'Music', 'Documentary', 'Western', 'TV Movie']) == 3, axis=1)].copy()
-    
-    # Calcular la similitud de puntuación entre esa película y el resto
-    peliculas_coincidentes['similarity'] = peliculas_coincidentes['popularity'].apply(lambda x: abs(x - puntuaciones['popularity'].iloc[0]))
-    
+    peliculas_coincidentes = movies_final[
+        movies_final.apply(
+            lambda row: row['title'] != titulo and sum(row[genre] == 1 for genre in
+                                                       ['Animation', 'Comedy', 'Family', 'Adventure', 'Fantasy',
+                                                        'Romance', 'Drama', 'Action', 'Crime', 'Thriller', 'Horror',
+                                                        'History', 'Science Fiction', 'Mystery', 'War', 'Foreign',
+                                                        'Music', 'Documentary', 'Western', 'TV Movie']) == 3, axis=1)].copy()
+
+    # Tokenizar y etiquetar las palabras del título de la película dada
+    tokens = word_tokenize(titulo)
+    tagged_words = pos_tag(tokens)
+
+    # Filtrar sustantivos y verbos, omitiendo los artículos y palabras vacías
+    filtered_words = [lemmatizer.lemmatize(word.lower()) for word, tag in tagged_words if
+                      tag.startswith('N') or tag.startswith('V') and word.lower() not in stop_words]
+
+    # Calcular la similitud de palabras entre esa película y el resto
+    peliculas_coincidentes['similarity'] = peliculas_coincidentes['title'].apply(
+        lambda x: len(set(filtered_words) & set(word_tokenize(x.lower()))))
+
     # Ordenar las películas según el score de similitud
-    peliculas_ordenadas = peliculas_coincidentes.sort_values(by='similarity')
-    
+    peliculas_ordenadas = peliculas_coincidentes.sort_values(by='similarity', ascending=False)
+
     # Obtener las 5 películas más similares
     peliculas_recomendadas = peliculas_ordenadas.head(5)['title'].tolist()
+
             
     return {'lista recomendada': peliculas_recomendadas}
 
