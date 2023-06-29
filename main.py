@@ -4,8 +4,8 @@ app = FastAPI()
 import pandas as pd
 
 
-movies_final = pd.read_csv(r'C:\Users\User\Desktop\movies\MoviesProject\data\movies_final.csv',low_memory=False)
-casting_final = pd.read_csv('C:\\Users\\User\\Desktop\\movies\\MoviesProject\\data\\casting_final.csv', sep=',',  low_memory=False)
+movies_final = pd.read_csv('..\data\\movies_final.csv',low_memory=False)
+casting_final = pd.read_csv('..\data\casting_final.csv', sep=',',  low_memory=False)
 
 @app.get("/")
 def index():
