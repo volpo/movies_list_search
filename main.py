@@ -200,6 +200,37 @@ def get_director(nombre_director:str):
 
 # --------------------------------------------------------------------------------------------------    
 
+# ML
+@app.get('/recomendacion/{titulo}')
+def recomendacion(titulo:str):
+    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista'''
+    # Convertir a minúsculas la variable
+    titulo = titulo.lower()
+
+    # Convertir a minúsculas la columna 'title'
+    movies_final["title"] = movies_final["title"].str.lower()
+
+    # Obtener las puntuaciones de la película dada
+    puntuaciones = movies_final[movies_final['title'] == titulo]['popularity'].values
+    if len(puntuaciones) == 0:
+        return []  # La película no se encuentra en el dataset
+    
+    # Calcular la similitud de puntuación entre esa película y el resto
+    movies_final['similarity'] = movies_final['popularity'].apply(lambda x: abs(x - puntuaciones))
+    
+    # Filtrar las películas que coinciden en al menos dos géneros
+    peliculas_coincidentes = movies_final[movies_final.apply(lambda row: row['title'] != titulo and sum(row[genre] == 1 for genre in ['Animation', 'Comedy', 'Family', 'Adventure', 'Fantasy', 'Romance', 'Drama', 'Action', 'Crime', 'Thriller', 'Horror', 'History', 'Science Fiction', 'Mystery', 'War', 'Foreign', 'Music', 'Documentary', 'Western', 'TV Movie']) == 5, axis=1)]
+    
+    # Ordenar las películas según el score de similitud
+    peliculas_ordenadas = peliculas_coincidentes.sort_values(by='similarity')
+    
+    # Obtener las 5 películas más similares
+    peliculas_recomendadas = peliculas_ordenadas.head(5)['title'].tolist()
+    
+    return {'lista recomendada': peliculas_recomendadas}
+
+# -----------------------------------------------------------------------
+
 # Ejecutar la aplicación
 if __name__ == "__main__":
     import uvicorn
