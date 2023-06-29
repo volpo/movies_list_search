@@ -6,9 +6,23 @@ import pandas as pd
 
 movies_final = pd.read_csv('movies_final.csv',low_memory=False)
 casting_final = pd.read_csv('casting_final.csv', sep=',',  low_memory=False)
+director_final = pd.read_csv('directores_final.csv', sep=',',  low_memory=False)
+
 
 @app.get("/")
 def index():
+
+    '''
+    "Para saber la cantidad de peliculas que se estrenaron ese mes historicamente /cantidad_filmaciones_mes/{mes}   
+    "Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente /cantidad_filmaciones_dia/{dia} 
+    "Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo/{titulo}
+    "Ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones /votos_titulo/{titulo}
+    "Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,"
+    "Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director{nombre_director} 
+    'Ingresas un nombre de pelicula y te recomienda las similares en una lista. /recomendacion/{titulo}'
+
+    '''
+
     q1 = ["Para saber la cantidad de peliculas que se estrenaron ese mes historicamente /cantidad_filmaciones_mes/{mes}     "]
     q2 = ["Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente /cantidad_filmaciones_dia/{dia}    "]
     q3 = ["Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo/{titulo}    "]
@@ -21,6 +35,7 @@ def index():
     indice = q1+q2+q3+q4+q5+q6+q8
     return indice
 
+#----------------------------------------------------------------------------------------------------------------------------------------
 
 @app.get('/cantidad_filmaciones_mes/{mes}')
 def cantidad_filmaciones_mes(mes:str):
@@ -130,13 +145,62 @@ def get_actor(nombre_actor:str):
     retorno_promedio = df_query['return'].mean()
     return {'actor':nombre_actor, 'cantidad_filmaciones':str(tot_sel), 'retorno_total':str(retorno_total), 'retorno_promedio':str(retorno_promedio)}
     
-    
+# ------------------------------------------------------------------------------------------------------------------    
 
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
     ''' Se ingresa el nombre de un director que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno. 
     Además, deberá devolver el nombre de cada película con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma.'''
-    return {'director':nombre_director, 'retorno_total_director':'respuesta', 
-    'peliculas':'respuesta', 'anio':'respuesta', 'retorno_pelicula':'respuesta', 
-    'budget_pelicula':'respuesta', 'revenue_pelicula':'respuesta'}
+    #convierto en minuscula la variables
+    nombre_director = nombre_director.lower() 
 
+    #convierto en minuscula la columna
+    director_final["nombre_director"] = director_final["nombre_director"].str.lower() 
+
+    # merge los dos csv's
+    df_total=pd.merge(movies_final, director_final, on = 'id', how = 'inner')
+    # Obtener el éxito total del director (retorno_total_director)
+    retorno_total_director = df_total[df_total['nombre_director']==nombre_director]
+      
+    # Sumar los valores de la columna 'return' en las filas coincidentes
+    suma_retorno = retorno_total_director['return'].sum()
+
+    # Obtener información de cada película del director
+    peliculas = df_total[df_total['nombre_director']==nombre_director]
+   
+    # Convertir el DataFrame en una lista de diccionarios
+    peliculas = peliculas.to_dict(orient='records')
+
+    # Crear una lista para almacenar la información de cada película
+    peliculas_info = []
+    
+    # Obtener información de cada película (nombre, año, retorno, presupuesto y ganancias)
+    for pelicula in peliculas:
+        nombre_pelicula = pelicula['title']
+        anio_lanzamiento = pelicula['release_year']
+        retorno_pelicula = pelicula['return']
+        budget_pelicula = pelicula['budget']
+        revenue_pelicula = pelicula['revenue']
+        
+        # Agregar la información de la película a la lista
+        peliculas_info.append({
+            'pelicula': nombre_pelicula,
+            'anio': anio_lanzamiento,
+            'retorno_pelicula': retorno_pelicula,
+            'budget_pelicula': budget_pelicula,
+            'revenue_pelicula': revenue_pelicula
+        })
+    
+    # Crear y retornar el diccionario con la información del director y sus películas
+    return {
+        'director': nombre_director,
+        'retorno_total_director': suma_retorno,
+        'peliculas': peliculas_info
+    }
+
+# --------------------------------------------------------------------------------------------------    
+
+# Ejecutar la aplicación
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
