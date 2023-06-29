@@ -4,8 +4,8 @@ app = FastAPI()
 import pandas as pd
 import numpy as np
 
-movies = pd.read_csv(r'C:\Users\User\Desktop\movies\MoviesProject\data\movies_final.csv',low_memory=False)
-
+movies_final = pd.read_csv(r'C:\Users\User\Desktop\movies\MoviesProject\data\movies_final.csv',low_memory=False)
+casting_final = pd.read_csv('C:\\Users\\User\\Desktop\\movies\\MoviesProject\\data\\casting_final.csv', sep=',',  low_memory=False)
 
 @app.get("/")
 def index():
@@ -13,12 +13,12 @@ def index():
     q2 = ["Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente /cantidad_filmaciones_dia/{dia}    "]
     q3 = ["Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo/{titulo}    "]
     q4 = ["Ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones /votos_titulo/{titulo}    "]
-    q5 = ["Ingresa nombre de actor para devolver el éxito a través del retorno y cantidad de películas que participó y el promedio de retorno /get_actor/{nombre_actor   "]  
-    q6 = ["Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,     "]
-    q7 = q6 + ["Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director(nombre_director)   "]
+    q5 = ["Ingresa nombre de actor para devolver el éxito a través del retorno y cantidad de películas que participó y el promedio de retorno /get_actor/{nombre_actor}   "]  
+    q6 = ["Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,"
+         "Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director{nombre_director}   "]
     q8 = ['Ingresas un nombre de pelicula y te recomienda las similares en una lista. /recomendacion/{titulo}']
 
-    indice = q1+q2+q3+q4+q5+q6+q7+q8
+    indice = q1+q2+q3+q4+q5+q6+q8
     return indice
 
 
@@ -42,9 +42,9 @@ def cantidad_filmaciones_mes(mes:str):
     }
 
     #Convertir el tipo de la columna 'release_date' al tipo datetime
-    movies['release_date'] = pd.to_datetime(movies['release_date'])
+    movies_final['release_date'] = pd.to_datetime(movies_final['release_date'])
     # Filtrar el dataframe para obtener las peliculas estrenadas en ese mes
-    peliculas_mes = movies[movies['release_date'].dt.month == meses.get(qmes)]
+    peliculas_mes = movies_final[movies_final['release_date'].dt.month == meses.get(qmes)]
     respuesta = len(peliculas_mes)
     return {'mes':mes, 'cantidad':respuesta}
 
@@ -64,9 +64,9 @@ def cantidad_filmaciones_dia(dia:str):
     }    
 
     #Convertir el tipo de la columna 'release_date' al tipo datetime
-    movies['release_date'] = pd.to_datetime(movies['release_date'])
+    movies_final['release_date'] = pd.to_datetime(movies_final['release_date'])
     # Filtrar el dataframe para obtener las peliculas estrenadas en ese dia
-    peliculas_dia = movies[movies['release_date'].dt.day_of_week == dias.get(qdia)]
+    peliculas_dia = movies_final[movies_final['release_date'].dt.day_of_week == dias.get(qdia)]
     respuesta = len(peliculas_dia)
     
     return {'dia':dia, 'cantidad':respuesta}
@@ -74,8 +74,8 @@ def cantidad_filmaciones_dia(dia:str):
 @app.get('/score_titulo/{titulo}')
 def score_titulo(titulo:str):
     titulo = titulo.lower()
-    movies["title"] = movies["title"].str.lower()
-    df_query = movies[movies["title"].str.contains(titulo)]
+    movies_final["title"] = movies_final["title"].str.lower()
+    df_query = movies_final[movies_final["title"].str.contains(titulo)]
     tot_sel=df_query['title'].count()
     if tot_sel == 0:
         return {'No se encontraron películas similares al título ingresado'}
@@ -95,8 +95,8 @@ def votos_titulo(titulo: str):
     caso contrario, debemos contar con un mensaje avisando que no cumple esta condición y que por ende, no se devuelve ningún valor.'''
     titulo = titulo.lower()
     # Filtrar el dataframe para obtener las peliculas con el título ingresado
-    movies["title"] = movies["title"].str.lower()
-    peliculas_filtradas = movies[movies['title'] == titulo]
+    movies_final["title"] = movies_final["title"].str.lower()
+    peliculas_filtradas = movies_final[movies_final['title'] == titulo]
     
     if len(peliculas_filtradas) > 0:
         # Seleccionar la primera fila del dataframe
@@ -116,7 +116,21 @@ def votos_titulo(titulo: str):
 def get_actor(nombre_actor:str):
     '''Se ingresa el nombre de un actor que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno. 
     Además, la cantidad de películas que en las que ha participado y el promedio de retorno'''
-    return {'actor':nombre_actor, 'cantidad_filmaciones':'respuesta', 'retorno_total':'respuesta', 'retorno_promedio':'respuesta'}
+    nombre_actor = nombre_actor.lower() #convierto en minuscula la variables
+    casting_final["name_actor"] = casting_final["name_actor"].str.lower() #convierto en minuscula la columna
+    df_total=pd.merge(movies_final, casting_final, on = 'id', how = 'inner')
+    df_query = df_total[df_total["name_actor"].str.contains(nombre_actor)]
+    tot_sel=df_query['name_actor'].count()
+    
+    if tot_sel == 0:
+        return {'No se encontraron películas para el nombre de actor ingresado'}
+    
+    nombre_actor = nombre_actor.title()
+    retorno_total = df_query['return'].sum()
+    retorno_promedio = df_query['return'].mean()
+    return {'actor':nombre_actor, 'cantidad_filmaciones':str(tot_sel), 'retorno_total':str(retorno_total), 'retorno_promedio':str(retorno_promedio)}
+    
+    
 
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
