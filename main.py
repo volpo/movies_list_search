@@ -88,6 +88,7 @@ def cantidad_filmaciones_dia(dia:str):
 
 @app.get('/score_titulo/{titulo}')
 def score_titulo(titulo:str):
+    '''Se ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score'''
     titulo = titulo.lower()
     movies_final["title"] = movies_final["title"].str.lower()
     df_query = movies_final[movies_final["title"].str.contains(titulo)]
@@ -100,7 +101,6 @@ def score_titulo(titulo:str):
     anio = df_query['release_year'].astype('str').iloc[0]
     popularidad = df_query['popularity'].iloc[0]
     
-    '''Se ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score'''
     return {'titulo':titulo, 'anio':anio, 'popularidad':popularidad}
 
 @app.get('/votos_titulo/{titulo}')
@@ -151,29 +151,30 @@ def get_actor(nombre_actor:str):
 def get_director(nombre_director:str):
     ''' Se ingresa el nombre de un director que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno. 
     Además, deberá devolver el nombre de cada película con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma.'''
-    #convierto en minuscula la variables
-    nombre_director = nombre_director.lower() 
+     # Convertir a minúsculas la variable
+    nombre_director = nombre_director.lower()
 
-    #convierto en minuscula la columna
-    director_final["nombre_director"] = director_final["nombre_director"].str.lower() 
+    # Convertir a minúsculas la columna 'nombre_director'
+    director_final["nombre_director"] = director_final["nombre_director"].str.lower()
 
-    # merge los dos csv's
-    df_total=pd.merge(movies_final, director_final, on = 'id', how = 'inner')
+    # Merge de los dos DataFrames
+    df_total = pd.merge(movies_final, director_final, on='id', how='inner')
+
     # Obtener el éxito total del director (retorno_total_director)
-    retorno_total_director = df_total[df_total['nombre_director']==nombre_director]
-      
+    retorno_total_director = df_total[df_total['nombre_director'] == nombre_director]
+
     # Sumar los valores de la columna 'return' en las filas coincidentes
     suma_retorno = retorno_total_director['return'].sum()
 
     # Obtener información de cada película del director
-    peliculas = df_total[df_total['nombre_director']==nombre_director]
-   
+    peliculas = df_total[df_total['nombre_director'] == nombre_director]
+
     # Convertir el DataFrame en una lista de diccionarios
     peliculas = peliculas.to_dict(orient='records')
 
     # Crear una lista para almacenar la información de cada película
     peliculas_info = []
-    
+
     # Obtener información de cada película (nombre, año, retorno, presupuesto y ganancias)
     for pelicula in peliculas:
         nombre_pelicula = pelicula['title']
@@ -181,7 +182,7 @@ def get_director(nombre_director:str):
         retorno_pelicula = pelicula['return']
         budget_pelicula = pelicula['budget']
         revenue_pelicula = pelicula['revenue']
-        
+
         # Agregar la información de la película a la lista
         peliculas_info.append({
             'pelicula': nombre_pelicula,
@@ -190,8 +191,7 @@ def get_director(nombre_director:str):
             'budget_pelicula': budget_pelicula,
             'revenue_pelicula': revenue_pelicula
         })
-    
-    # Crear y retornar el diccionario con la información del director y sus películas
+        # Crear y retornar el diccionario con la información del director y sus películas
     return {
         'director': nombre_director,
         'retorno_total_director': suma_retorno,
