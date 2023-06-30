@@ -67,7 +67,7 @@ El idioma inglés es el más común en las peliculas.
 
 <img src="https://user-images.githubusercontent.com/60153579/249997901-18b45bfb-34d2-4aef-90bb-a769c24396cc.JPG"  height=200>
 
-Observamos un aumento de la realizacion de peliculas durante los años donde el mayor pico de producción ocurrió en el año 2020
+Observamos un aumento de la realizacion de peliculas durante el periodo 1980-2020. Donde el mayor pico de producción ocurrió en el año 2020.
  
  <br> 
 
