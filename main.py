@@ -137,23 +137,27 @@ def votos_titulo(titulo: str):
 
 
 @app.get('/get_actor/{nombre_actor}')
-def get_actor(nombre_actor:str):
-    '''Se ingresa el nombre de un actor que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno. 
-    Además, la cantidad de películas que en las que ha participado y el promedio de retorno'''
-    nombre_actor = nombre_actor.lower() #convierto en minuscula la variables
-    casting_final["name_actor"] = casting_final["name_actor"].str.lower() #convierto en minuscula la columna
-    df_total=pd.merge(movies_final, casting_final, on = 'id', how = 'inner')
-    df_query = df_total[df_total["name_actor"].str.contains(nombre_actor)]
-    tot_sel=df_query['name_actor'].count()
-    
-    if tot_sel == 0:
+def get_actor(nombre_actor: str):
+    '''Se ingresa el nombre de un actor que se encuentre dentro de un dataset devolviendo el éxito del mismo medido a través del retorno, 
+    la cantidad de películas en las que ha participado y el promedio de retorno'''
+
+    nombre_actor = nombre_actor.lower() # Convertir en minúscula el nombre del actor
+    df_query = casting_final[casting_final["name_actor"].str.contains(nombre_actor, case=False)]
+
+    if df_query.empty:
         return {'No se encontraron películas para el nombre de actor ingresado'}
-    
-    nombre_actor = nombre_actor.title()
-    retorno_total = df_query['return'].sum()
-    retorno_promedio = df_query['return'].mean()
-    return {'actor':nombre_actor, 'cantidad_filmaciones':str(tot_sel), 'retorno_total':str(retorno_total), 'retorno_promedio':str(retorno_promedio)}
-    
+
+    retorno_total = df_query.merge(movies_final, on='id')['return'].sum()
+    retorno_promedio = df_query.merge(movies_final, on='id')['return'].mean()
+    cantidad_filmaciones = len(df_query)
+
+    return {
+        'actor': nombre_actor.title(),
+        'cantidad_filmaciones': str(cantidad_filmaciones),
+        'retorno_total': str(retorno_total),
+        'retorno_promedio': str(retorno_promedio)
+    }
+
 # ------------------------------------------------------------------------------------------------------------------    
 
 @app.get('/get_director/{nombre_director}')
