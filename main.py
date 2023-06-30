@@ -20,16 +20,13 @@ director_final = pd.read_csv('directores_final.csv', sep=',',  low_memory=False)
 
 @app.get("/")
 def index():
-
-    '''
-    "Para saber la cantidad de peliculas que se estrenaron ese mes historicamente /cantidad_filmaciones_mes/{mes}   
-    "Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente /cantidad_filmaciones_dia/{dia} 
-    "Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo/{titulo}
-    "Ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones /votos_titulo/{titulo}
-    "Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,"
-    "Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director{nombre_director} 
-    'Ingresas un nombre de pelicula y te recomienda las similares en una lista. /recomendacion/{titulo}'
-
+    '''Para saber la cantidad de peliculas que se estrenaron ese mes historicamente seleccionar /cantidad_filmaciones_mes
+    "Para retornar la cantidad de peliculas que se estrenaron ese dia historicamente seleccionar /cantidad_filmaciones_dia
+    "Ingresa el título de una filmación esperando como respuesta el título, el año de estreno y el score /score_titulo
+    "Ingresa el título de una filmación esperando como respuesta el título, la cantidad de votos y el valor promedio de las votaciones /votos_titulo
+    "Ingresa nombre de director para devolver el éxito del mismo medido a través del retorno, nombre de sus películas,
+    Con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma. /get_director{nombre_director}'
+    'Ingresas un nombre de pelicula y te recomienda las similares en una lista. /recomendacion/'
     '''
 
     q1 = ["Para saber la cantidad de peliculas que se estrenaron ese mes historicamente /cantidad_filmaciones_mes/{mes}     "]
