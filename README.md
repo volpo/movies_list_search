@@ -36,20 +36,40 @@ https://github.com/volpo/movies_list_search/tree/main/EDA_MOVIES
 <p align="center">
 <img src="https://user-images.githubusercontent.com/60153579/249987707-45adbd54-3c8b-4344-b430-360d30539e84.JPG"  height=200>
 </p>
+En este caso vemos que los conectores son los que más aparecen, como 'the', 'of', 'and','to', etc.
 
+<br> 
 <center>Análisis promedio de los votos a los films
 
 <img src="https://user-images.githubusercontent.com/60153579/249987768-1b34d469-8336-4d7f-bb6a-1c27c153c004.JPG"  height=200>
 
+El voto promedio de las peliculas es = 6
+
+<br> 
 <center>outliers en 'release_year'
 
 <img src="https://user-images.githubusercontent.com/60153579/249987772-78f31880-076e-44f3-b189-7e4c7b6a4810.JPG"  height=200>
+Observamos que hay peliculas que tienen fecha de estreno en 1874, 1878, 1883, 1887, 1888. Obviamente esto es un error porque la primer filmación que se considera es del año 1895, realizada por los hermanos Lumiere.
+
+<br> 
 
 <center> IDIOMAS ORIGINALES
 
 <img src="https://user-images.githubusercontent.com/60153579/249987771-07fa9151-f098-4ce4-ac44-5d12a274d28e.JPG"  height=200>
 
+El idioma inglés es el más común en las peliculas.
 
+<br> 
+
+<center>Histograma 'Release_Year'
+
+<img src="https://user-images.githubusercontent.com/60153579/249997909-9a1ce4da-f74f-4d25-a765-727e7d102359.JPG"  height=200>
+
+<img src="https://user-images.githubusercontent.com/60153579/249997901-18b45bfb-34d2-4aef-90bb-a769c24396cc.JPG"  height=200>
+
+Observamos un aumento de la realizacion de peliculas durante los años donde el mayor pico de producción ocurrió en el año 2020
+ 
+ <br> 
 
 ----------------------------------------------------
 # MACHINE LEARNING
